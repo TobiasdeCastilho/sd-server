@@ -46,7 +46,7 @@ class Server {
 };
 
 Server::Server(unsigned int port, Protocol _p) __THROW {
-	_INFO << "Starting " << (_p == TCP ? "TCP" : "UDP") << " server" << std::endl;
+	_INFO << "Starting " << (_p == TCP ? "TCP" : "UDP") << " server..." << std::endl;
 
 	this->sock.id = socket(AF_INET, _p == TCP ? SOCK_STREAM : SOCK_DGRAM, 0);
 	if (this->sock.id < 0) {
@@ -79,7 +79,7 @@ Server::Server(unsigned int port, Protocol _p) __THROW {
 		exit(1);
 	}
 
-	_INFO << "Server started on port " << port << std::endl;
+	_SUCESS << "Server started on port " << port << std::endl;
 }
 
 Server::~Server() {
@@ -155,7 +155,7 @@ bool Server::listen_start(unsigned int max) __THROW {
 			return NULL;
 	}, this);
 
-	_INFO << "Server listening" << std::endl;
+	_SUCESS << "Server is now listening" << std::endl;
 	return true;
 }
 
