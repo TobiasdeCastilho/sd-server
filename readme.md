@@ -22,9 +22,11 @@ Para implemnetação seram utilizados 2 protocolos (próprios) a serem descritos
 
 A ideia deste protocolo é transferir de forma leve os dados adiquiridos pelos `Sensores`.
 
-#### Conexão (Novo sensor)
+#### Novo sensor
 
-O cliente deverá requisitar conexão ao servidor. Descrevendo seu nome e os tipos de dados que seram enviados, juntamente com sua identificação, seguindo a seguinte expressão regular: `\/[_a-zA-Z][_a-zA-Z0-9]*\/(([_a-zA-Z][_a-zA-Z0-9]*\[(str|num|bin)\])(&|$))+`
+O cliente deverá requisitar conexão ao servidor. Descrevendo seu nome e os tipos de dados que seram enviados, juntamente com sua identificação, seguindo a seguinte expressão regular:
+
+**`[_a-zA-Z][_a-zA-Z0-9]*\/(([_a-zA-Z][_a-zA-Z0-9]*\[(str|num|bin)\])(&|$))+`**
 
 O servidor deverá então processar esses dados e atrelalos a uma estrutura capaz de armazenar as informações que o `Sensor` elencou. Após isso o deverá atrelar ao `Cliente` 2 identificadores distintos:
 
@@ -32,26 +34,29 @@ O servidor deverá então processar esses dados e atrelalos a uma estrutura capa
 - Id privado: O sensor ira atribuir seus dados por meio deste
 
 O envio dos identificadores para o cliente deve seguir a seguinte expressão regular:
-`\/priv\[[a-zA-Z0-9]+\]&pub\[[a-zA-Z0-9]+\]`
+
+**`\/priv\[[a-zA-Z0-9]+\]&pub\[[a-zA-Z0-9]+\]`**
 
 Exemplo:
 
 ```
-Cliente  -- sdtp://192.168.0.1:4045/sensor_1/temp[num]&umid[str]&lun[bin] --> Servidor
+Cliente  -- sdtp://192.168.0.10:4045/sensor_1/temp[num]&umid[str]&lum[bin] --> Servidor
 Servidor -- sdtp://192.168.0.100:4030/priv[4de7s55de87]&pub[321s87de54s]  --> Cliente
 ```
 
 #### Envio de informações
 
-O envio deve ser feito afirmado o identificador (privado) e seguindo a ordem estabelecida na criação da conexão, com o valor podendo ser ignorado apenas não sendo colocando entre os `&&`, seguindo portanto a seguinte expressão regular: `\/[a-zA-Z0-9]\/([^&]*(&|$))+`
+O envio deve ser feito afirmado o identificador (privado) e seguindo a ordem estabelecida quando o sensor é adicionado, com o valor podendo ser ignorado apenas não sendo colocando entre os `&&`, seguindo portanto a seguinte expressão regular:
+
+**`\/[a-zA-Z0-9]\/([^&]*(&|$))+`**
 
 Exemplo:
 
 ```
-Cliente -- stdp://192.168.0.1:4045/4de7s55de87/123.20&&0 --> Servidor
+Cliente -- stdp://192.168.0.10:4045/4de7s55de87/123.20&&0 --> Servidor
 ```
 
-O servidor deve validar se o identificador corresponde ao servidor original e em caso positivo atribuir o novo dado a sua estrutura.
+O servidor deve validar se o identificador corresponde ao sensor original e em caso positivo atribuir o novo dado a sua estrutura.
 
 ### Requisição de informação
 
@@ -59,24 +64,48 @@ O servidor deve validar se o identificador corresponde ao servidor original e em
 
    Um cliente pode requisitar uma lista dos sensores disponíveis apenas enviado uma requisição sem dado nenhum.
 
-   O servidor deverá responder a mesma informando o nome do sensor (informado na conexão) e o identificador público do mesmo, seguindo a seguinte expressão regular: `\/([_a-zA-Z][_a-zA-Z0-9]+\[[_a-zA-Z0-9]+\](&|$))+`
+   O servidor deverá responder a mesma informando o nome do sensor (informado na conexão) e o identificador público do mesmo, seguindo a seguinte expressão regular:
+
+   **`\/([_a-zA-Z][_a-zA-Z0-9]+\[[_a-zA-Z0-9]+\](&|$))+`**
 
    Exemplo:
 
    ```
-   Cliente  -- stdp://192.168.0.1:4045 --> Servidor
+   Cliente  -- stdp://192.168.0.10:4045 --> Servidor
    Servidor -- stdp://192.168.0.150:4096/sensor_1[321s87de54s] --> Cliente
    ```
 
 2. Requisitando os dados de um sensor
 
-   Tendo o identificador público de um sensor o cliente pode requistar os dados de um ou mais sensores, seguindo a seguinte expressão regular: `\/([a-zA-Z0-9]+(&|$))+`
+   Tendo o identificador público de um sensor o cliente pode requistar os dados de um ou mais sensores, seguindo a seguinte expressão regular:
 
-   O servidor deve responder a requisição seguindo a ordem da requisição dos , seguindo a seguinte expressão regular: `\/([^&]*(&|\](&|$)))+`
+   **`\/([a-zA-Z0-9]+(&|$))+`**
+
+   O servidor deve responder a requisição seguindo a ordem da requisição, sendo validado pela a seguinte expressão regular:
+
+   **`\/(\[[^&]*(&|\](&|$)))+`**
 
    Exemplo:
 
    ```
-   Cliente -- stdp://192.168.0.1:4045/321s87de54s --> Servidor
+   Cliente -- stdp://192.168.0.10:4045/321s87de54s --> Servidor
    Servidor -- stdp://192.168.0.150:4096/[123.20&&0] --> Cliente
+   ```
+
+3. Requisitanto especificações de um sensor
+
+   Este protocolo visa receber e parsear os dados de forma rápida, sendo assim existe uma distinção entre a requisição de dados e das definições dos
+   clientes (sensores), segue a expressão que define tal requisição:
+
+   **`\/([a-zA-Z0-9]+\[?\](&|$))+`**
+
+   Já a resposta do servidor deve serguir o seguinte:
+
+   **`\/(\[[^&]*\:(str|num|bin)(&|\](&|$)))+`**
+
+   Exemplo:
+
+   ```
+   Cliente -- stdp://192.168.0.10:4045/321s87de54s --> Servidor
+   Servidor -- stdp://192.168.0.150:4045/[temp:num&umid:str&lum:bin]
    ```
