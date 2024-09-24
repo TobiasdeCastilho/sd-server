@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <iostream>
-#include <pthread.h>
+#include <string.h>
 
 #include "out.cpp"
 #include "server.cpp"
+#include "sdtp.cpp"
 
-int main(int argc, char** argv){  
+SDTP::Server stdp_server;		
 
+int main(int argc, char** argv){  	
 	if(argc < 2) {
 		_ERROR << "Usage: " << argv[0] << " <port>" << std::endl;
 		exit(1);
@@ -14,16 +16,12 @@ int main(int argc, char** argv){
 
 	// Create a socket
 	const int _port = atoi(argv[1]);	
-	Server server(_port, TCP);
+	Server server(_port, TCP);		
 
 	// Set the server function
-	server.set_server_function(
-		[](int id) -> void {					
-			_SUCESS << "Connection " << id << " established" << std::endl;
-			sleep(5);
-			_SUCESS << "Connection " << id << " closed" << std::endl;		
-		}
-	);
+	server.set_server_function([](int connection) -> void {
+		stdp_server.recieve_request(connection);
+	});		
 
 	// Start listening
 	server.listen_start(10);
