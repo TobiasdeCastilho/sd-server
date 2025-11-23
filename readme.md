@@ -13,7 +13,7 @@ O servidor atuará como intermédio, recebendo informações de diversos sensore
 
 ## Protocolos
 
-Para implemnetação seram utilizados 2 protocolos (próprios) a serem descritos abaixo
+Para implemnetação foram utilizados 2 protocolos (próprios) a serem descritos abaixo
 
 - `Protocolo de Transferência de Dados de Sensores`: **sdtp://**
 - `Protocolo de Comunicação entre Clientes`: **ccp://**
@@ -24,7 +24,7 @@ A ideia deste protocolo é transferir de forma leve os dados adiquiridos pelos `
 
 #### Novo sensor
 
-O cliente deverá requisitar conexão ao servidor. Descrevendo seu nome e os tipos de dados que seram enviados, juntamente com sua identificação, seguindo a seguinte expressão regular:
+O cliente deverá requisitar conexão ao servidor. Descrevendo seu nome e os tipos de dados que serão enviados, juntamente com sua identificação, seguindo a seguinte expressão regular:
 
 **`[_a-zA-Z][_a-zA-Z0-9]*\/(([_a-zA-Z][_a-zA-Z0-9]*\[(str|num|bin)\])(&|$))+`**
 
